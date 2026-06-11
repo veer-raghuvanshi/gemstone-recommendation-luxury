@@ -12,7 +12,7 @@ app.use(express.json());
 
 /* ✅ Home route (fixes "Cannot GET /") */
 app.get("/", (req, res) => {
-  res.send("Gemstone Backend is Running 🚀");
+  res.send("TEST VERSION 123 🚀");
 });
 
 /* Routes */
