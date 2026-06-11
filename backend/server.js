@@ -12,7 +12,10 @@ app.use(express.json());
 
 /* ✅ Home route (fixes "Cannot GET /") */
 app.get("/", (req, res) => {
-  res.send("TEST VERSION 123 🚀");
+  res.json({
+    status: "WORKING",
+    message: "Backend deployed successfully 🚀"
+  });
 });
 
 /* Routes */
