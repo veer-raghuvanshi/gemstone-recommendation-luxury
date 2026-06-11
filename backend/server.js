@@ -1,22 +1,26 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
 
-const recommendationRoutes = require(
-  "./routes/recommendationRoutes"
-);
+const recommendationRoutes = require("./routes/recommendationRoutes");
 
 const app = express();
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
+/* ✅ Home route (fixes "Cannot GET /") */
+app.get("/", (req, res) => {
+  res.send("Gemstone Backend is Running 🚀");
+});
+
+/* Routes */
 app.use("/api/recommendations", recommendationRoutes);
 
-// MongoDB connection disabled for demo version
-console.log("Running with in-memory storage");
+/* Start server */
+const PORT = process.env.PORT || 5000;
 
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
+app.listen(PORT, () => {
+  console.log("Server running on port", PORT);
 });
