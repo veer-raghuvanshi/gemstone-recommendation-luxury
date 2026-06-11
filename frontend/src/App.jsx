@@ -3,16 +3,17 @@ import RecommendationCard from "./components/RecommendationCard";
 import UserForm from "./components/UserForm";
 import { getRecommendations } from "./utils/recommendationEngine";
 
+
 function App() {
   const [recommendations, setRecommendations] = useState([]);
   const [history, setHistory] = useState([]);
 
-  // ✅ FETCH HISTORY (MUST BE OUTSIDE)
+  const API_BASE = import.meta.env.VITE_API_URL;
+
+  // ✅ FETCH HISTORY
   const fetchHistory = async () => {
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/recommendations"
-      );
+      const response = await fetch(`${API_BASE}/api/recommendations`);
 
       const data = await response.json();
       setHistory(data);
@@ -33,9 +34,8 @@ function App() {
 
     setRecommendations(topResults);
 
-    // Save to backend
     try {
-      await fetch("http://localhost:5000/api/recommendations", {
+      await fetch(`${API_BASE}/api/recommendations`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -48,7 +48,6 @@ function App() {
 
       console.log("Recommendation saved");
 
-      // refresh history after saving
       await fetchHistory();
     } catch (error) {
       console.error("Failed to save recommendation", error);
@@ -99,7 +98,7 @@ function App() {
           </div>
         )}
 
-        {/* ✅ HISTORY SECTION */}
+        {/* HISTORY SECTION */}
         {history.length > 0 && (
           <div className="mt-16">
             <h2 className="text-3xl font-bold mb-6">
