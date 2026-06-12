@@ -1,13 +1,13 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-require('dotenv').config();
+require('dotenv').config(); // This loads your hidden safe keys from the .env file
 
 const recommendationRoutes = require('./routes/recommendationRoutes');
 
 const app = express();
 
-// 1. Middleware Configuration
+// 1. Middleware Configurations
 app.use(cors());
 app.use(express.json());
 
@@ -20,7 +20,8 @@ app.get('/', (req, res) => {
 app.use('/api/recommendations', recommendationRoutes);
 
 // 4. Live MongoDB Atlas Database Connection
-const MONGO_URI = "mongodb+srv://yashita2578beai24_db_user:Mongo123@gemstone-cluster.qkwzygg.mongodb.net/gemstoneDB?retryWrites=true&w=majority&appName=gemstone-cluster";
+// This line now safely pulls your secret URL from the hidden .env file
+const MONGO_URI = process.env.MONGO_URI;
 
 console.log('Attempting to connect to MongoDB Atlas Cloud...');
 mongoose.connect(MONGO_URI)
@@ -32,9 +33,7 @@ mongoose.connect(MONGO_URI)
   });
 
 // 5. Start Server Listening on Port 5001 (Bypassing Apple AirPlay Port 5000 Hold)
-const PORT = 5001;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`🚀 Server is officially holding open and running on port ${PORT}`);
-}).on('error', (err) => {
-  console.error('❌ Server startup error:', err.message);
 });
