@@ -16,12 +16,10 @@ app.use(
       "http://localhost:3000",
       "https://gemstone-recommendation-system.vercel.app"
     ],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
   })
 );
-
-app.options("*", cors());
 
 app.use(express.json());
 
