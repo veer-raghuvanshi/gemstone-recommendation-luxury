@@ -9,10 +9,7 @@ function UserForm({ onSubmit }) {
   });
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e) => {
@@ -21,20 +18,15 @@ function UserForm({ onSubmit }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="form">
+
       <input
-        type="text"
         name="name"
         placeholder="Enter your name"
         onChange={handleChange}
-        className="w-full p-3 rounded-lg bg-slate-800 border border-slate-700 text-white"
       />
 
-      <select
-        name="zodiac"
-        onChange={handleChange}
-        className="w-full p-3 rounded-lg bg-slate-800 border border-slate-700 text-white"
-      >
+      <select name="zodiac" onChange={handleChange}>
         <option value="">Select Zodiac Sign</option>
         <option>Aries</option>
         <option>Taurus</option>
@@ -50,11 +42,7 @@ function UserForm({ onSubmit }) {
         <option>Pisces</option>
       </select>
 
-      <select
-        name="profession"
-        onChange={handleChange}
-        className="w-full p-3 rounded-lg bg-slate-800 border border-slate-700 text-white"
-      >
+      <select name="profession" onChange={handleChange}>
         <option value="">Select Profession</option>
         <option>Student</option>
         <option>Software Engineer</option>
@@ -62,11 +50,7 @@ function UserForm({ onSubmit }) {
         <option>Business Owner</option>
       </select>
 
-      <select
-        name="goal"
-        onChange={handleChange}
-        className="w-full p-3 rounded-lg bg-slate-800 border border-slate-700 text-white"
-      >
+      <select name="goal" onChange={handleChange}>
         <option value="">Select Goal</option>
         <option>Career Growth</option>
         <option>Education</option>
@@ -75,12 +59,8 @@ function UserForm({ onSubmit }) {
         <option>Confidence</option>
       </select>
 
-      <button
-        type="submit"
-        className="w-full bg-indigo-600 hover:bg-indigo-700 p-3 rounded-lg font-semibold"
-      >
-        Get Recommendation
-      </button>
+      <button type="submit">Get Recommendation</button>
+
     </form>
   );
 }
