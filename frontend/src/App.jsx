@@ -1,276 +1,220 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import './App.css';
 
-export default function App() {
-  const [formData, setFormData] = useState({
-    name: '', email: '', phone: '',
-    zodiacSign: '', profession: '', goal: '',
-    dob: '', weight: '', placeOfBirth: ''
-  });
+function App() {
+  // Form input states
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [dob, setDob] = useState('');
+  const [birthPlace, setBirthPlace] = useState('');
+  const [weight, setWeight] = useState('');
+  const [zodiac, setZodiac] = useState('');
+  const [profession, setProfession] = useState('');
+  const [intention, setIntention] = useState('');
+
+  // UI status states
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
   const [history, setHistory] = useState([]);
 
-  useEffect(() => {
-    fetchHistory();
-  }, []);
-
-  const fetchHistory = async () => {
-    try {
-      const response = await fetch('http://localhost:5001/api/recommendations');
-      if (response.ok) {
-        const data = await response.json();
-        setHistory(Array.isArray(data) ? data : []);
-      }
-    } catch (error) {
-      console.error("Error fetching history:", error);
-    }
-  };
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setResult(null);
+
     try {
-      const response = await fetch('http://localhost:5001/api/recommendations', {
+      const response = await fetch('http://127.0.0.1:5001/api/recommendations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ name, email, phone, dob, birthPlace, weight, zodiac, profession, intention }),
       });
 
-      if (!response.ok) throw new Error(`Server status: ${response.status}`);
+      if (!response.ok) {
+        throw new Error('Could not reach backend server. Confirm port 5001 is running.');
+      }
 
       const data = await response.json();
       setResult(data);
-      setHistory((prevHistory) => [data, ...prevHistory]);
-    } catch (error) {
-      console.error("Error connecting to backend:", error);
-      alert("Could not reach backend server. Please confirm it is running on port 5001.");
+      setHistory(prev => [{ name, zodiac, gemstone: data.gemstone, timestamp: new Date().toLocaleTimeString() }, ...prev]);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={containerStyle}>
-      {/* HEADER */}
-      <header style={headerStyle}>
-        <h1 style={titleStyle}>GEMSTONE RECOMMENDATION</h1>
-        <div style={goldDivider}></div>
-        <p style={subtitleStyle}>Astrological Charting & Custom Ring Calculations</p>
+    <div className="luxury-app-wrapper">
+      
+      {/* Premium Header with Full Animated Vector Crest Logo */}
+      <header className="mystic-header">
+        <div className="title-left">ASTRO-GEM</div>
+        
+        <div className="logo-center-emblem">
+          <svg viewBox="0 0 100 100" className="crest-svg">
+            {/* Background Magic Glow Ring */}
+            <circle cx="50" cy="50" r="45" stroke="#c5a880" strokeWidth="1" fill="none" opacity="0.3" strokeDasharray="2 2" />
+            <circle cx="50" cy="50" r="41" stroke="#c5a880" strokeWidth="1.5" fill="none" />
+            
+            {/* Twinkling Stars */}
+            <path d="M50,15 L51,18 L54,19 L51,20 L50,23 L49,20 L46,19 L49,18 Z" fill="#c5a880" opacity="0.8" />
+            <circle cx="28" cy="35" r="1" fill="#fff" opacity="0.5" />
+            <circle cx="72" cy="35" r="1" fill="#fff" opacity="0.5" />
+            
+            {/* The Celestial Crescent Moon */}
+            <path d="M42,30 A12,12 0 1,0 58,46 A9,9 0 1,1 42,30 Z" fill="#c5a880" transform="rotate(-15 50 40)" />
+            
+            {/* Center Shined Emerald & Ruby Crystal Geometries */}
+            {/* Left Diamond */}
+            <polygon points="32,65 42,52 45,65 38,75" fill="#10b981" opacity="0.7" stroke="#042f22" strokeWidth="0.5" />
+            {/* Center Diamond */}
+            <polygon points="42,52 58,52 55,68 45,68" fill="#e11d48" opacity="0.85" stroke="#3f0712" strokeWidth="0.5" />
+            <polygon points="50,45 42,52 58,52" fill="#f43f5e" opacity="0.9" />
+            {/* Right Diamond */}
+            <polygon points="58,52 68,65 62,75 55,65" fill="#2563eb" opacity="0.7" stroke="#1e3a8a" strokeWidth="0.5" />
+            
+            {/* Decorative Luxury Foliage Wings */}
+            <path d="M20,78 Q35,78 45,68" stroke="#c5a880" strokeWidth="1" fill="none" />
+            <path d="M80,78 Q65,78 55,68" stroke="#c5a880" strokeWidth="1" fill="none" />
+          </svg>
+        </div>
+        
+        <div className="title-right">GEMSTONE GUIDE</div>
       </header>
 
-      {/* FORM CARD */}
-      <form onSubmit={handleSubmit} style={formCardStyle}>
-        
-        <div style={sectionHeaderStyle}>
-          <h3 style={sectionTitleStyle}>I. Client Information</h3>
-        </div>
-        <div style={gridThreeStyle}>
-          <input type="text" name="name" value={formData.name} placeholder="Full Name" onChange={handleChange} required style={inputStyle} />
-          <input type="email" name="email" value={formData.email} placeholder="Email Address" onChange={handleChange} required style={inputStyle} />
-          <input type="tel" name="phone" value={formData.phone} placeholder="Phone Number" onChange={handleChange} required style={inputStyle} />
-        </div>
+      <main className="mystic-container">
+        <div className="gold-frame-card">
+          <form onSubmit={handleSubmit} className="premium-form">
+            
+            {/* Section I */}
+            <div className="form-section">
+              <h3 className="section-title">I. CLIENT INFORMATION</h3>
+              <div className="input-row-three">
+                <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., Jane Doe" required />
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="e.g., jane@email.com" required />
+                <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="e.g., +1 234 567" required />
+              </div>
+            </div>
 
-        <div style={sectionHeaderStyle}>
-          <h3 style={sectionTitleStyle}>II. Birth & Physical Blueprints</h3>
-        </div>
-        <div style={gridThreeStyle}>
-          <div>
-            <label style={labelStyle}>Date of Birth</label>
-            <input type="date" name="dob" value={formData.dob} onChange={handleChange} required style={inputStyle} />
-          </div>
-          <div>
-            <label style={labelStyle}>Place of Birth</label>
-            <input type="text" name="placeOfBirth" value={formData.placeOfBirth} placeholder="City, Country" onChange={handleChange} required style={inputStyle} />
-          </div>
-          <div>
-            <label style={labelStyle}>Body Weight (kg)</label>
-            <input type="number" name="weight" value={formData.weight} placeholder="e.g. 70" onChange={handleChange} required style={inputStyle} />
-          </div>
-        </div>
-
-        <div style={sectionHeaderStyle}>
-          <h3 style={sectionTitleStyle}>III. Alignment Parameters</h3>
-        </div>
-        <div style={gridThreeStyle}>
-          <select name="zodiacSign" value={formData.zodiacSign} onChange={handleChange} required style={selectStyle}>
-            <option value="">Select Zodiac Sign</option>
-            <option value="Aries">Aries</option>
-            <option value="Taurus">Taurus</option>
-            <option value="Gemini">Gemini</option>
-            <option value="Cancer">Cancer</option>
-            <option value="Leo">Leo</option>
-            <option value="Virgo">Virgo</option>
-            <option value="Libra">Libra</option>
-            <option value="Scorpio">Scorpio</option>
-            <option value="Sagittarius">Sagittarius</option>
-            <option value="Capricorn">Capricorn</option>
-            <option value="Aquarius">Aquarius</option>
-            <option value="Pisces">Pisces</option>
-          </select>
-          <select name="profession" value={formData.profession} onChange={handleChange} style={selectStyle}>
-            <option value="">Select Profession</option>
-            <option value="Business">Business / Entrepreneur</option>
-            <option value="Software / Tech">Software / Tech</option>
-            <option value="Arts / Creative">Arts / Creative</option>
-            <option value="Medical">Medical / Healthcare</option>
-          </select>
-          <select name="goal" value={formData.goal} onChange={handleChange} style={selectStyle}>
-            <option value="">Primary Goal</option>
-            <option value="Wealth & Prosperity">Wealth & Prosperity</option>
-            <option value="Health & Peace">Health & Peace</option>
-            <option value="Career Growth">Career Growth</option>
-          </select>
-        </div>
-
-        <button type="submit" style={buttonStyle}>
-          Generate Recommendation
-        </button>
-      </form>
-
-      {/* --- RUBY & GOLD PRESCRIPTION CARD --- */}
-      {result && (
-        <div style={certificateCardStyle}>
-          <div style={certHeader}>
-            <span style={certSeal}>✦ ✦ ✦</span>
-            <h2 style={certTitle}>RECOMMENDED GEMSTONE</h2>
-            <p style={certMeta}>Astrological Analysis For {result.name} — {result.zodiacSign} Sign</p>
-          </div>
-          
-          <div style={certBody}>
-            {result.recommendations && Array.isArray(result.recommendations) && result.recommendations.map((rec, i) => (
-              <div key={i} style={gemRowBlockStyle}>
-                <div style={gemTitleLine}>
-                  <span style={gemNameText}>💎 {rec.gemstone}</span>
-                  <span style={rubyBadge}>{rec.suggestedCarat || 'Calculated Carat'}</span>
+            {/* Section II */}
+            <div className="form-section">
+              <h3 className="section-title">II. BIRTH & PHYSICAL BLUEPRINTS</h3>
+              <div className="input-row-three">
+                <div className="field-container">
+                  <label className="field-label">DATE OF BIRTH</label>
+                  <input type="date" value={dob} onChange={(e) => setDob(e.target.value)} required />
                 </div>
-                <div style={gridTwoStyle}>
-                  <p style={detailTextStyle}><strong>Finger to Wear:</strong> {rec.finger}</p>
-                  <p style={detailTextStyle}><strong>Ideal Mounting Metal:</strong> {rec.metal}</p>
+                <div className="field-container">
+                  <label className="field-label">PLACE OF BIRTH</label>
+                  <input type="text" value={birthPlace} onChange={(e) => setBirthPlace(e.target.value)} placeholder="City, Country" required />
+                </div>
+                <div className="field-container">
+                  <label className="field-label">BODY WEIGHT (KG)</label>
+                  <input type="number" value={weight} onChange={(e) => setWeight(e.target.value)} placeholder="e.g. 70" required />
                 </div>
               </div>
-            ))}
+            </div>
+
+            {/* Section III */}
+            <div className="form-section">
+              <h3 className="section-title">III. ALIGNMENT PARAMETERS</h3>
+              <div className="input-row-three">
+                <select value={zodiac} onChange={(e) => setZodiac(e.target.value)} required>
+                  <option value="">Select Zodiac Sign</option>
+                  <option value="aries">Aries (Mesh)</option>
+                  <option value="taurus">Taurus (Vrishabha)</option>
+                  <option value="gemini">Gemini (Mithuna)</option>
+                  <option value="cancer">Cancer (Karka)</option>
+                  <option value="leo">Leo (Simha)</option>
+                  <option value="virgo">Virgo (Kanya)</option>
+                  <option value="libra">Libra (Tula)</option>
+                  <option value="scorpio">Scorpio (Vrishchika)</option>
+                  <option value="sagittarius">Sagittarius (Dhanu)</option>
+                  <option value="capricorn">Capricorn (Makara)</option>
+                  <option value="aquarius">Aquarius (Kumbha)</option>
+                  <option value="pisces">Pisces (Meena)</option>
+                </select>
+
+                <select value={profession} onChange={(e) => setProfession(e.target.value)} required>
+                  <option value="">Select Profession</option>
+                  <option value="Software / Tech">Software / Tech</option>
+                  <option value="Business / Trade">Business / Trade</option>
+                  <option value="Arts / Creative">Arts / Creative</option>
+                  <option value="Medical / Science">Medical / Science</option>
+                </select>
+
+                <select value={intention} onChange={(e) => setIntention(e.target.value)} required>
+                  <option value="">Primary Goal</option>
+                  <option value="Career Growth">Career Growth</option>
+                  <option value="Wealth & Prosperity">Wealth & Prosperity</option>
+                  <option value="Health & Healing">Health & Healing</option>
+                  <option value="Mental Peace">Mental Peace</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Luxury Action Button */}
+            <button type="submit" className="luxury-submit-btn" disabled={loading}>
+              {loading ? 'READING PLANETARY ALIGNMENTS...' : 'GENERATE RECOMMENDATION 💎'}
+            </button>
+          </form>
+        </div>
+
+        {/* Dynamic Display Result Panel */}
+        {result && (
+          <div className="gold-frame-card result-panel animated-fade-in">
+            <h2 className="result-main-title">Cosmic Assessment Matrix</h2>
+            <div className="luxury-badge">
+              <span>Aura Catalyst Stone: <strong>{result.gemstone}</strong></span>
+            </div>
+            <div className="luxury-specs">
+              <div className="spec-box">
+                <span className="box-label">DIAGNOSED MASS</span>
+                <span className="box-value">{result.ratti}</span>
+              </div>
+              <div className="spec-box">
+                <span className="box-label">ELEMENTAL ANCHOR METAL</span>
+                <span className="box-value">{result.metal}</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* History Log Section */}
+      <section className="premium-history-area">
+        <h2 className="history-title-heading">RECOMMENDATION HISTORY</h2>
+        <div className="history-grid-container">
+          {history.length === 0 ? (
+            <p className="no-history-msg">No past sessions evaluated in this session runtime loop.</p>
+          ) : (
+            history.map((h, i) => (
+              <div className="history-pill" key={i}>
+                <span className="pill-gem">✨</span>
+                <div className="pill-details">
+                  <h4>{h.gemstone}</h4>
+                  <p>{h.name} • {h.zodiac.toUpperCase()}</p>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </section>
+
+      {/* Error Alert Box Modal */}
+      {error && (
+        <div className="error-popup-backdrop">
+          <div className="error-popup-box">
+            <p className="err-txt">⚠️ {error}</p>
+            <button className="close-popup-btn" onClick={() => setError(null)}>DISMISS</button>
           </div>
         </div>
       )}
-
-      {/* --- HISTORICAL LOG --- */}
-      <div style={archiveSectionStyle}>
-        <h2 style={archiveTitleStyle}>Recommendation History</h2>
-        <div style={archiveContainerStyle}>
-          {Array.isArray(history) && history.map((item, index) => (
-            <div key={item?._id || index} style={archiveCardStyle}>
-              <div style={archiveHeaderStyle}>
-                <span style={archiveUserText}>{item?.name || 'User Query'} ({item?.zodiacSign || 'N/A'})</span>
-                <span style={archiveDateText}>{item?.date ? new Date(item.date).toLocaleDateString() : ''}</span>
-              </div>
-              <div style={archiveBodyText}>
-                {Array.isArray(item?.recommendations) ? item.recommendations.map(r => r.gemstone).join(' • ') : 'Record Saved'}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
 
-/* --- CRAFTED LUXURY GEMOLOGY STYLES --- */
-const containerStyle = {
-  maxWidth: '850px', margin: '0 auto', padding: '4rem 2rem', color: '#f4f4f0', fontFamily: '"Georgia", "Times New Roman", serif', minHeight: '100vh'
-};
-const headerStyle = {
-  textAlign: 'center', marginBottom: '4.5rem'
-};
-const titleStyle = {
-  fontSize: '2.2rem', letterSpacing: '0.15em', fontWeight: '400', color: '#dfcca5', margin: '0 0 1rem 0'
-};
-const goldDivider = {
-  width: '60px', height: '1px', background: '#dfcca5', margin: '0 auto 1.25rem auto'
-};
-const subtitleStyle = {
-  fontFamily: 'system-ui, sans-serif', fontSize: '0.85rem', color: '#a3b899', letterSpacing: '0.08em', textTransform: 'uppercase'
-};
-const formCardStyle = {
-  background: '#0a1d17', padding: '3.5rem', borderRadius: '8px', border: '1px solid #1c3d32', boxShadow: '0 20px 40px rgba(0,0,0,0.4)'
-};
-const sectionHeaderStyle = {
-  marginBottom: '1.5rem', borderBottom: '1px solid #19382e', paddingBottom: '0.4rem'
-};
-const sectionTitleStyle = {
-  fontSize: '0.95rem', letterSpacing: '0.12em', fontWeight: '400', color: '#dfcca5', textTransform: 'uppercase', margin: 0
-};
-const gridThreeStyle = {
-  display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem', marginBottom: '2.5rem'
-};
-const gridTwoStyle = {
-  display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1fr'
-};
-const labelStyle = {
-  display: 'block', color: '#7ba08d', fontSize: '0.75rem', fontFamily: 'system-ui, sans-serif', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem'
-};
-const inputStyle = {
-  width: '100%', padding: '0.85rem 1rem', background: '#05110e', border: '1px solid #1c3d32', borderRadius: '4px', color: '#f4f4f0', fontSize: '0.9rem', fontFamily: 'system-ui, sans-serif', boxSizing: 'border-box', outline: 'none'
-};
-const selectStyle = {
-  ...inputStyle, cursor: 'pointer'
-};
-const buttonStyle = {
-  width: '100%', padding: '1.1rem', background: '#dfcca5', color: '#0a1d17', border: 'none', borderRadius: '4px', fontFamily: 'system-ui, sans-serif', fontWeight: '700', letterSpacing: '0.15em', textTransform: 'uppercase', cursor: 'pointer', fontSize: '0.9rem', marginTop: '0.5rem', boxShadow: '0 4px 12px rgba(223,204,165,0.15)'
-};
-const certificateCardStyle = {
-  marginTop: '4rem', background: '#05110e', borderRadius: '6px', border: '2px solid #dfcca5', padding: '3rem', position: 'relative', boxShadow: '0 25px 50px rgba(0,0,0,0.5)'
-};
-const certHeader = {
-  textAlign: 'center', borderBottom: '1px solid #22372f', paddingBottom: '1.75rem', marginBottom: '2rem'
-};
-const certSeal = {
-  color: '#dfcca5', display: 'block', letterSpacing: '0.4em', fontSize: '0.8rem', marginBottom: '0.5rem'
-};
-const certTitle = {
-  fontSize: '1.75rem', fontWeight: '300', letterSpacing: '0.15em', color: '#dfcca5', margin: '0 0 0.5rem 0'
-};
-const certMeta = {
-  fontFamily: 'system-ui, sans-serif', fontSize: '0.85rem', color: '#97b3a4', margin: 0, letterSpacing: '0.02em'
-};
-const certBody = {
-  display: 'flex', flexDirection: 'column', gap: '1.5rem'
-};
-const gemRowBlockStyle = {
-  background: '#091c16', padding: '1.5rem 2rem', border: '1px solid #163128', borderRadius: '4px'
-};
-const gemTitleLine = {
-  display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid #163128', paddingBottom: '0.6rem'
-};
-const gemNameText = {
-  fontSize: '1.3rem', color: '#fff', letterSpacing: '0.04em', fontWeight: '500'
-};
-const rubyBadge = {
-  fontFamily: 'system-ui, sans-serif', fontSize: '0.75rem', fontWeight: 'bold', background: '#7a1c27', color: '#fdd', border: '1px solid #aa3341', padding: '0.35rem 0.75rem', borderRadius: '3px', letterSpacing: '0.05em'
-};
-const detailTextStyle = {
-  margin: 0, fontFamily: 'system-ui, sans-serif', fontSize: '0.85rem', color: '#d2e3d8', letterSpacing: '0.02em'
-};
-const archiveSectionStyle = {
-  marginTop: '6rem'
-};
-const archiveTitleStyle = {
-  fontSize: '1.05rem', letterSpacing: '0.2em', fontWeight: '400', color: '#a3b899', textTransform: 'uppercase', marginBottom: '1.75rem', borderBottom: '1px solid #19382e', paddingBottom: '0.5rem'
-};
-const archiveContainerStyle = {
-  display: 'flex', flexDirection: 'column', gap: '1.25rem'
-};
-const archiveCardStyle = {
-  background: '#0a1d17', padding: '1.5rem 1.75rem', borderRadius: '4px', border: '1px solid #173329'
-};
-const archiveHeaderStyle = {
-  display: 'flex', justifyContent: 'space-between', color: '#7ba08d', fontSize: '0.8rem', fontFamily: 'system-ui, sans-serif', marginBottom: '0.6rem', letterSpacing: '0.02em'
-};
-const archiveUserText = {
-  fontWeight: '500', color: '#dfcca5'
-};
-const archiveDateText = {
-  color: '#557564'
-};
-const archiveBodyText = {
-  fontSize: '0.95rem', color: '#d2e3d8', fontStyle: 'italic'
-};
+export default App;

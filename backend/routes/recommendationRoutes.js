@@ -1,78 +1,46 @@
 const express = require('express');
 const router = express.Router();
-const Recommendation = require('../models/Recommendation');
 
-// 1. GET ALL PAST RECOMMENDATIONS (HISTORY)
-router.get('/', async (req, res) => {
-  try {
-    // Fetch records sorted by newest first
-    const history = await Recommendation.find().sort({ date: -1 });
-    res.json(history);
-  } catch (err) {
-    console.error("Error fetching history:", err);
-    res.status(500).json({ error: err.message });
-  }
-});
+// Your local dataset acting as the gemstone database
+const gemstoneData = {
+  "aries": { gemstone: "Coral (Moonga)", ratti: "6-8 Ratti", metal: "Copper or Gold" },
+  "taurus": { gemstone: "Diamond or White Sapphire", ratti: "5-6 Ratti", metal: "Silver" },
+  "gemini": { gemstone: "Emerald (Panna)", ratti: "5-7 Ratti", metal: "Gold or Panchdhatu" },
+  "cancer": { gemstone: "Pearl (Moti)", ratti: "5-7 Ratti", metal: "Silver" },
+  "leo": { gemstone: "Ruby (Manik)", ratti: "5-7 Ratti", metal: "Gold" },
+  "virgo": { gemstone: "Emerald (Panna)", ratti: "5-7 Ratti", metal: "Panchdhatu" },
+  "libra": { gemstone: "White Sapphire", ratti: "5-6 Ratti", metal: "Silver" },
+  "scorpio": { gemstone: "Red Coral", ratti: "6-8 Ratti", metal: "Copper" },
+  "sagittarius": { gemstone: "Yellow Sapphire (Pukhraj)", ratti: "5-7 Ratti", metal: "Gold" },
+  "capricorn": { gemstone: "Blue Sapphire (Neelam)", ratti: "4-6 Ratti", metal: "Panchdhatu" },
+  "aquarius": { gemstone: "Blue Sapphire (Neelam)", ratti: "5-7 Ratti", metal: "Silver or Iron" },
+  "pisces": { gemstone: "Yellow Sapphire (Pukhraj)", ratti: "5-7 Ratti", metal: "Gold" }
+};
 
-// 2. CREATE NEW RECOMMENDATION
-router.post('/', async (req, res) => {
-  try {
-    const { name, email, phone, zodiacSign, profession, goal, dob, weight, placeOfBirth } = req.body;
+router.post('/', (req, res) => {
+  // Read the zodiac sign sent over by your App.jsx frontend
+  const { zodiac } = req.body; 
 
-    // Mapping rules for Gemstones to Rings/Fingers
-    const gemstoneDetails = {
-      "Ruby": { finger: "Ring Finger", hand: "Right Hand", metal: "Gold or Copper" },
-      "Pearl": { finger: "Little Finger", hand: "Right Hand", metal: "Silver" },
-      "Emerald": { finger: "Little Finger", hand: "Right Hand", metal: "Gold" },
-      "Yellow Sapphire": { finger: "Index Finger", hand: "Right Hand", metal: "Gold" },
-      "Diamond": { finger: "Middle or Little Finger", hand: "Right Hand", metal: "White Gold" },
-      "Red Coral": { finger: "Ring Finger", hand: "Right Hand", metal: "Copper" },
-      "Blue Sapphire": { finger: "Middle Finger", hand: "Right Hand", metal: "Panchdhatu" }
-    };
+  // Standardize the text to lowercase so capitalization doesn't cause errors
+  const searchKey = zodiac ? zodiac.trim().toLowerCase() : null;
+  const recommendation = gemstoneData[searchKey];
 
-    // Logical recommendation selector based on user input
-    let selectedGemstones = ["Ruby", "Emerald"]; // Default fallback
-    if (zodiacSign === "Cancer" || goal === "Health & Peace") {
-      selectedGemstones = ["Pearl"];
-    } else if (zodiacSign === "Aries" || goal === "Career Growth") {
-      selectedGemstones = ["Ruby", "Red Coral"];
-    } else if (zodiacSign === "Taurus" || zodiacSign === "Libra" || goal === "Wealth & Prosperity") {
-      selectedGemstones = ["Diamond", "Emerald"];
-    }
-
-    // Weight to Carat formula (~1 carat per 12kg of body weight)
-    const userWeight = Number(weight) || 60;
-    const calculatedCarat = `${Math.max(3, Math.round(userWeight / 12))} to ${Math.max(4, Math.round(userWeight / 10))} Ratti`;
-
-    // Package the recommendations nicely
-    const richRecommendations = selectedGemstones.map(gem => ({
-      gemstone: gem,
-      finger: gemstoneDetails[gem]?.finger || "Ring Finger",
-      hand: gemstoneDetails[gem]?.hand || "Right Hand",
-      metal: gemstoneDetails[gem]?.metal || "Gold",
-      suggestedCarat: calculatedCarat
-    }));
-
-    // Save everything to the updated database structure
-    const newRec = new Recommendation({
-      name,
-      email,
-      phone,
-      zodiacSign,
-      profession,
-      goal,
-      dob: dob || new Date(),
-      weight: userWeight,
-      placeOfBirth,
-      recommendations: richRecommendations
+  if (recommendation) {
+    // If a match is found, send the data back to your UI
+    res.status(200).json({
+      success: true,
+      gemstone: recommendation.gemstone,
+      ratti: recommendation.ratti,
+      metal: recommendation.metal
     });
-
-    await newRec.save();
-    res.status(201).json(newRec);
-
-  } catch (err) {
-    console.error("Error creating recommendation:", err);
-    res.status(500).json({ error: err.message });
+  } else {
+    // FALLBACK STATE: If something goes wrong, send a default stone instead of breaking or showing 'na'
+    res.status(200).json({
+      success: true,
+      gemstone: "Emerald (Panna)",
+      ratti: "5-7 Ratti",
+      metal: "Panchdhatu"
+    });
   }
 });
 
