@@ -12,14 +12,16 @@ const app = express();
 app.use(
   cors({
     origin: [
-      "http://localhost:5173", // local frontend (Vite)
+      "http://localhost:5173",
       "http://localhost:3000",
-      "https://gemstone-recommendation-system.vercel.app" // your deployed frontend
+      "https://gemstone-recommendation-system.vercel.app"
     ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true
   })
 );
+
+app.options("*", cors());
 
 app.use(express.json());
 
